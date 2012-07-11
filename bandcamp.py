@@ -174,19 +174,18 @@ if __name__ == "__main__":
 			m.seek(0)
 			m.write(b"\x49\x44\x33\x02\x00\x00\x00\x00\x00\x00" + old) # Meh...
 			m.close
-			# Let's try again...
-			try:
-				t = stagger.read_tag(f)
-				t.album = album["title"]
-				t.artist = artist
-				t.date = release_date.strftime("%Y-%m-%d %H:%M:%S")
-				t.title = track["title"]
-				t.track = track["track_num"]
-				t.picture = artwork_full_name
-				t.write()
-			except:
-				print("[Warning] Can't add tags, skipped.")
-
+		# Let's try again...
+		try:
+			t = stagger.read_tag(f)
+			t.album = album["title"]
+			t.artist = artist
+			t.date = release_date.strftime("%Y-%m-%d %H:%M:%S")
+			t.title = track["title"]
+			t.track = track["track_num"]
+			t.picture = artwork_full_name
+			t.write()
+		except:
+			print("[Warning] Can't add tags, skipped.")
 
 #===============================================================================
 #
