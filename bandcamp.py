@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Bandcamp Mp3 Downloader 0.1
+# Bandcamp Mp3 Downloader 0.1.1
 # Copyright (c) 2012 cisoun, Cyriaque Skrapits <cysoun[at]gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = "0.1"
+VERSION = "0.1.1"
 
 
 import sys
@@ -28,21 +28,17 @@ try:
 	import stagger
 	from stagger.id3 import *
 except:
-	print("Error : Can't import stagger, will skip mp3 tagging.")
+	print("Error : can't import stagger, will skip mp3 tagging.")
 
 
 # Download a file and show its progress.
 # Taken from http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
-def Download(url, out, message = None):
+def Download(url, out, message):
 	u = urllib.request.urlopen(url)
 	f = open(out, "wb")
 	meta = u.info()
 
 	file_size = int(meta["Content-Length"])
-	if message:
-		print (">> Downloading: %s, Bytes: %s" % (message, file_size))
-	else:
-		print (">> Downloading: %s, Bytes: %s" % (out, file_size))
 	
 	file_size_dl = 0
 	block_sz = 8192
@@ -53,7 +49,9 @@ def Download(url, out, message = None):
 		file_size_dl += len(buffer)
 		f.write(buffer)
 		#status = "%d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-		status = "[" + ("=" * int(file_size_dl * 78. / file_size)) + (" " * int(78 - (file_size_dl * 78. / file_size))) + "]"
+		#status = "[" + ("=" * int(file_size_dl * 78. / file_size)) + (" " * int(78 - (file_size_dl * 78. / file_size))) + "]"
+		t = message + " (" + "{:d}".format(int(file_size / 1024)) + " ko) : "
+		status =  t + (" " * int(58 - len(t))) + "[" + ("#" * int(file_size_dl * 20. / file_size)) + (" " * int(20 - (file_size_dl * 20. / file_size))) + "]"
 		status = status + chr(8) * (len(status) + 1)
 		sys.stdout.write(status)
 		sys.stdout.flush()
@@ -122,15 +120,24 @@ if __name__ == "__main__":
 
 
 	# Load the code.
-	f = urllib.request.urlopen(sys.argv[1])
-	s = f.read().decode('utf-8')
+	try:
+		f = urllib.request.urlopen(sys.argv[1])
+		s = f.read().decode('utf-8')
+	except:
+		print("[Error] Can't reach the page.")
+		print("Aborting...")
+		sys.exit(0)
 
 	# We only load the essential datas.
-	data = {}
-	album = GetDataFromPropertie("current", True)[0]
-	artwork = GetDataFromPropertie("artThumbURL").replace('"', '').replace('\\', '')
-	artwork_full = GetDataFromPropertie("artFullsizeUrl").replace('"', '').replace('\\', '')
-	tracks = GetDataFromPropertie("trackinfo", True)
+	try:
+		album = GetDataFromPropertie("current", True)[0]
+		artwork = GetDataFromPropertie("artThumbURL").replace('"', '').replace('\\', '')
+		artwork_full = GetDataFromPropertie("artFullsizeUrl").replace('"', '').replace('\\', '')
+		tracks = GetDataFromPropertie("trackinfo", True)
+	except:
+		print("[Error] Can't find album's datas.")
+		print("Aborting...")
+		sys.exit(0)
 
 	f.close()
 
@@ -142,7 +149,13 @@ if __name__ == "__main__":
 #===============================================================================
 
 	
+	# List the tracks.
+	print("Tracks found :\n----")
+	for i in range(0, len(tracks) - 1):
+		print(str(tracks[i]["track_num"]) + ". " + str(tracks[i]["title"]))
+
 	# Artwork.
+	print()
 	artwork_name = artwork.split('/')[-1]
 	artwork_full_name = artwork_full.split('/')[-1]
 	Download(artwork, artwork_name, "Cover")
@@ -152,7 +165,7 @@ if __name__ == "__main__":
 	print()
 	for track in tracks:
 		f = "%s. %s.mp3" % (track["track_num"], track["title"])
-		Download(track["file"], f)
+		Download(track["file"], f, "Track " + str(track["track_num"]) + "/" + str(len(tracks)))
 		# Tag.
 		try:
 			t = stagger.read_tag(f)
@@ -163,8 +176,7 @@ if __name__ == "__main__":
 			t.picture = LoadBinaryFile(artwork_full_name)
 			t.write()
 		except:
-			print("Warning : Can't add tags, skipped.")
-		print()
+			print("[Warning] Can't add tags, skipped.")
 
 	
-	print("Finished !\n")
+	print("\nFinished !\n")
