@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Bandcamp Mp3 Downloader 0.1.1
+# Bandcamp Mp3 Downloader 0.1.2
 # Copyright (c) 2012 cisoun, Cyriaque Skrapits <cysoun[at]gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -17,18 +17,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 
 
 import sys
 import urllib.request
 import re
 import json
+from datetime import datetime, date, time
 try:
 	import stagger
 	from stagger.id3 import *
+	can_tag = True
 except:
-	print("Error : can't import stagger, will skip mp3 tagging.")
+	print("[Error] Can't import stagger, will skip mp3 tagging.")
+	can_tag = False
 
 
 # Download a file and show its progress.
@@ -37,9 +40,7 @@ def Download(url, out, message):
 	u = urllib.request.urlopen(url)
 	f = open(out, "wb")
 	meta = u.info()
-
 	file_size = int(meta["Content-Length"])
-	
 	file_size_dl = 0
 	block_sz = 8192
 	while True:
@@ -48,10 +49,8 @@ def Download(url, out, message):
 			break
 		file_size_dl += len(buffer)
 		f.write(buffer)
-		#status = "%d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-		#status = "[" + ("=" * int(file_size_dl * 78. / file_size)) + (" " * int(78 - (file_size_dl * 78. / file_size))) + "]"
 		t = message + " (" + "{:d}".format(int(file_size / 1024)) + " ko) : "
-		status =  t + (" " * int(58 - len(t))) + "[" + ("#" * int(file_size_dl * 20. / file_size)) + (" " * int(20 - (file_size_dl * 20. / file_size))) + "]"
+		status =  t + (" " * int(48 - len(t))) + "[" + ("#" * int(file_size_dl * 30 / file_size)) + (" " * int(30 - (file_size_dl * 30 / file_size))) + "]"
 		status = status + chr(8) * (len(status) + 1)
 		sys.stdout.write(status)
 		sys.stdout.flush()
@@ -61,15 +60,8 @@ def Download(url, out, message):
 # Return some JSON things...
 def GetDataFromPropertie(p, bracket = False):
 	if bracket:
-		return(json.loads("[{" + (re.findall( p + "[ ]?: \[?\{(.+)\}\]?,", s, re.MULTILINE)[0] + "}]")))
-		#return(json.loads("[{" + (re.findall(p + "[ ]?: \[?\{([^\}\]?]+)", s, re.DOTALL)[0] + "}]")))
+		return(json.loads("[{" + (re.findall(p + "[ ]?: \[?\{(.+)\}\]?,", s, re.MULTILINE)[0] + "}]")))
 	return(re.findall(p + "[ ]?: ([^,]+)", s, re.DOTALL)[0])
-
-def LoadBinaryFile(f):
-	t = open(f, "rb")
-	d = t.read()
-	t.close()
-	return d
 
 # Print a JSON data.
 def PrintData(d):
@@ -103,12 +95,13 @@ if __name__ == "__main__":
 	# URL given ?
 	if len(sys.argv) == 1:
 		print("Please, add an url at the end of the command !")
-		print("eg: " + sys.argv[0] + " http://artist.bandcamp.com/album/blahblahblah")
+		print("e.g: " + sys.argv[0] + " http://artist.bandcamp.com/album/blahblahblah\n")
 		sys.exit(0)
 
 	# Valid URL ?
 	if not re.match("^http://(\w+)\.bandcamp\.com([-\w]|/)*$", sys.argv[1]):
-		print("This url doesn't seems to be a valid bandcamp url.")
+		print("[Error] This url doesn't seems to be a valid bandcamp url.")
+		print("\nIt should be something like this :\n" + sys.argv[0] + " http://artist.bandcamp.com/album/blahblahblah\n")
 		sys.exit(0)
 
 
@@ -123,6 +116,7 @@ if __name__ == "__main__":
 	try:
 		f = urllib.request.urlopen(sys.argv[1])
 		s = f.read().decode('utf-8')
+		f.close()
 	except:
 		print("[Error] Can't reach the page.")
 		print("Aborting...")
@@ -131,15 +125,15 @@ if __name__ == "__main__":
 	# We only load the essential datas.
 	try:
 		album = GetDataFromPropertie("current", True)[0]
+		artist = GetDataFromPropertie("artist").replace('"', '').replace('\\', '')
 		artwork = GetDataFromPropertie("artThumbURL").replace('"', '').replace('\\', '')
 		artwork_full = GetDataFromPropertie("artFullsizeUrl").replace('"', '').replace('\\', '')
+		release_date = datetime.strptime(album["release_date"], "%a %b %d %H:%M:%S UTC %Y") # Get release date infos.
 		tracks = GetDataFromPropertie("trackinfo", True)
 	except:
 		print("[Error] Can't find album's datas.")
 		print("Aborting...")
 		sys.exit(0)
-
-	f.close()
 
 
 #===============================================================================
@@ -164,19 +158,51 @@ if __name__ == "__main__":
 	# Tracks.
 	print()
 	for track in tracks:
-		f = "%s. %s.mp3" % (track["track_num"], track["title"])
+		f = "%02d. %s.mp3" % (track["track_num"], track["title"])
 		Download(track["file"], f, "Track " + str(track["track_num"]) + "/" + str(len(tracks)))
 		# Tag.
+		if can_tag == False : continue # Skip the tagging operation if stagger cannot be loaded.
+		# Try to load the mp3 in stagger.
 		try:
 			t = stagger.read_tag(f)
-			t.album = album["title"]
-			t.artist = album["artist"]
-			t.date = album["release_date"]
-			t.track = track["track_num"]
-			t.picture = LoadBinaryFile(artwork_full_name)
-			t.write()
 		except:
-			print("[Warning] Can't add tags, skipped.")
+			# Try to add an empty ID3 header.
+			# As long stagger crashes when there's no header, use this hack.
+			# ID3v2 infos : http://id3.org/id3v2-00
+			m = open(f, 'r+b')
+			old = m.read()
+			m.seek(0)
+			m.write(b"\x49\x44\x33\x02\x00\x00\x00\x00\x00\x00" + old) # Meh...
+			m.close
+			# Let's try again...
+			try:
+				t = stagger.read_tag(f)
+				t.album = album["title"]
+				t.artist = artist
+				t.date = release_date.strftime("%Y-%m-%d %H:%M:%S")
+				t.title = track["title"]
+				t.track = track["track_num"]
+				t.picture = artwork_full_name
+				t.write()
+			except:
+				print("[Warning] Can't add tags, skipped.")
+
+
+#===============================================================================
+#
+#	4. Add album's informations.
+#
+#===============================================================================
 
 	
+	print("\nAdding additional infos...")
+	f = open("INFOS", "w+")
+	f.write("Artist : " + artist)
+	f.write("\nAlbum : " + album["title"])
+	f.write("\nRelease date : " + release_date.strftime("%Y-%m-%d %H:%M:%S"))
+	f.write("\n\nCredits :\n----\n" + album["credits"])
+	f.write("\n\nAbout :\n----\n" + album["about"])
+	f.close()
+
+	# Done.
 	print("\nFinished !\n")
