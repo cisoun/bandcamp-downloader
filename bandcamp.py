@@ -35,7 +35,7 @@ except:
 # Taken from http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
 def Download(url, out, message = None):
 	u = urllib.request.urlopen(url)
-	f = open(out, 'wb')
+	f = open(out, "wb")
 	meta = u.info()
 
 	file_size = int(meta["Content-Length"])
@@ -81,7 +81,7 @@ def PrintData(d):
 if __name__ == "__main__":
 #===============================================================================
 #
-#	0. Welcome
+#	0. Welcome.
 #
 #===============================================================================
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
 #===============================================================================
 #
-#	2. Find some informations
+#	2. Find some informations.
 #
 #===============================================================================
 
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
 #===============================================================================
 #
-#	3. Download & tag
+#	3. Download & tag.
 #
 #===============================================================================
 

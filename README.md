@@ -8,7 +8,7 @@
 License
 =======
 Bandcamp Mp3 Downloader 0.1
-Copyright (c) 2012 cisoun, Cyriaque Skrapits <cysoun[at]gmail.com>
+Copyright (c) 2012 cisoun, Cyriaque Skrapits &lt;cysoun[at]gmail.com&gt;
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,4 +32,4 @@ Dependencies
 
 Usage
 =====
-./bandcamp.py http://<artist>.bandcamp.com/album/<album>
+bandcamp.py http://&lt;artist&gt;.bandcamp.com/album/&lt;album&gt;
