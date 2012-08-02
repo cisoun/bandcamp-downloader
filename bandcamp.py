@@ -58,7 +58,7 @@ def Download(url, out, message):
 	print()
 
 # Return some JSON things...
-def GetDataFromPropertie(p, bracket = False):
+def GetDataFromProperty(p, bracket = False):
 	if bracket:
 		return(json.loads("[{" + (re.findall(p + "[ ]?: \[?\{(.+)\}\]?,", s, re.MULTILINE)[0] + "}]")))
 	return(re.findall(p + "[ ]?: ([^,]+)", s, re.DOTALL)[0])
@@ -124,12 +124,12 @@ if __name__ == "__main__":
 
 	# We only load the essential datas.
 	try:
-		album = GetDataFromPropertie("current", True)[0]
-		artist = GetDataFromPropertie("artist").replace('"', '').replace('\\', '')
-		artwork = GetDataFromPropertie("artThumbURL").replace('"', '').replace('\\', '')
-		artwork_full = GetDataFromPropertie("artFullsizeUrl").replace('"', '').replace('\\', '')
+		album = GetDataFromProperty("current", True)[0]
+		artist = GetDataFromProperty("artist").replace('"', '').replace('\\', '')
+		artwork = GetDataFromProperty("artThumbURL").replace('"', '').replace('\\', '')
+		artwork_full = GetDataFromProperty("artFullsizeUrl").replace('"', '').replace('\\', '')
 		release_date = datetime.strptime(album["release_date"], "%a %b %d %H:%M:%S UTC %Y") # Get release date infos.
-		tracks = GetDataFromPropertie("trackinfo", True)
+		tracks = GetDataFromProperty("trackinfo", True)
 	except:
 		print("[Error] Can't find album's datas.")
 		print("Aborting...")
