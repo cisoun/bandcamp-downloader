@@ -145,9 +145,9 @@ if __name__ == "__main__":
 	
 	# List the tracks.
 	print("Tracks found :\n----")
-	for i in range(0, len(tracks) - 1):
+	for i in range(0, len(tracks)):
 		print(str(tracks[i]["track_num"]) + ". " + str(tracks[i]["title"]))
-
+	exit
 	# Artwork.
 	print()
 	artwork_name = artwork.split('/')[-1]
@@ -187,6 +187,7 @@ if __name__ == "__main__":
 		except:
 			print("[Warning] Can't add tags, skipped.")
 
+
 #===============================================================================
 #
 #	4. Add album's informations.
@@ -197,10 +198,10 @@ if __name__ == "__main__":
 	print("\nAdding additional infos...")
 	f = open("INFOS", "w+")
 	f.write("Artist : " + artist)
-	f.write("\nAlbum : " + album["title"])
+	if album["title"] != None : f.write("\nAlbum : " + album["title"])
 	f.write("\nRelease date : " + release_date.strftime("%Y-%m-%d %H:%M:%S"))
-	f.write("\n\nCredits :\n----\n" + album["credits"])
-	f.write("\n\nAbout :\n----\n" + album["about"])
+	if album["credits"] != None : f.write("\n\nCredits :\n----\n" + album["credits"])
+	if album["about"] != None : f.write("\n\nAbout :\n----\n" + album["about"])
 	f.close()
 
 	# Done.
