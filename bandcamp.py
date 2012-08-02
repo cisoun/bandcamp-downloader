@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Bandcamp Mp3 Downloader 0.1.2
+# Bandcamp Mp3 Downloader 0.1.3
 # Copyright (c) 2012 cisoun, Cyriaque Skrapits <cysoun[at]gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 
 
 import sys
