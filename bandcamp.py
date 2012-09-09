@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Bandcamp Mp3 Downloader 0.1.3
+# Bandcamp Mp3 Downloader 0.1.4
 # Copyright (c) 2012 cisoun, Cyriaque Skrapits <cysoun[at]gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = "0.1.3"
+VERSION = "0.1.4"
 
 
 import sys
@@ -59,9 +59,12 @@ def Download(url, out, message):
 
 # Return some JSON things...
 def GetDataFromProperty(p, bracket = False):
-	if bracket:
-		return(json.loads("[{" + (re.findall(p + "[ ]?: \[?\{(.+)\}\]?,", s, re.MULTILINE)[0] + "}]")))
-	return(re.findall(p + "[ ]?: ([^,]+)", s, re.DOTALL)[0])
+	try:
+		if bracket:
+			return(json.loads("[{" + (re.findall(p + "[ ]?: \[?\{(.+)\}\]?,", s, re.MULTILINE)[0] + "}]")))
+		return(re.findall(p + "[ ]?: ([^,]+)", s, re.DOTALL)[0])
+	except:
+		return(0)
 
 # Print a JSON data.
 def PrintData(d):
@@ -123,15 +126,21 @@ if __name__ == "__main__":
 		sys.exit(0)
 
 	# We only load the essential datas.
+	album = GetDataFromProperty("current", True)[0]
+	artist = GetDataFromProperty("artist").replace('"', '').replace('\\', '')
+	artwork = GetDataFromProperty("artThumbURL").replace('"', '').replace('\\', '')
+	artwork_full = GetDataFromProperty("artFullsizeUrl").replace('"', '').replace('\\', '')
+	tracks = GetDataFromProperty("trackinfo", True)
+	if album == 0 : print("[Warning] Album informations not found.")
+	if artist == 0 : print("[Warning] Artist informations not found.")
+	if artwork == 0  : print("[Warning] Cover not found.")
+	if artwork_full == 0  : print("[Warning] Full size cover not found.")
 	try:
-		album = GetDataFromProperty("current", True)[0]
-		artist = GetDataFromProperty("artist").replace('"', '').replace('\\', '')
-		artwork = GetDataFromProperty("artThumbURL").replace('"', '').replace('\\', '')
-		artwork_full = GetDataFromProperty("artFullsizeUrl").replace('"', '').replace('\\', '')
-		release_date = datetime.strptime(album["release_date"], "%a %b %d %H:%M:%S UTC %Y") # Get release date infos.
-		tracks = GetDataFromProperty("trackinfo", True)
+		release_date = datetime.strptime(album["release_date"], "%d %b %Y %H:%M:%S GMT")
 	except:
-		print("[Error] Can't find album's datas.")
+		print("[Warning] Cannot find release date.")
+	if tracks == 0 :
+		print("[Error] Tracks not found. This is unecessary to continue.")
 		print("Aborting...")
 		sys.exit(0)
 
@@ -144,7 +153,7 @@ if __name__ == "__main__":
 
 	
 	# List the tracks.
-	print("Tracks found :\n----")
+	print("\nTracks found :\n----")
 	for i in range(0, len(tracks)):
 		print(str(tracks[i]["track_num"]) + ". " + str(tracks[i]["title"]))
 	exit
@@ -199,7 +208,7 @@ if __name__ == "__main__":
 	f = open("INFOS", "w+")
 	f.write("Artist : " + artist)
 	if album["title"] != None : f.write("\nAlbum : " + album["title"])
-	f.write("\nRelease date : " + release_date.strftime("%Y-%m-%d %H:%M:%S"))
+	if release_date != None : f.write("\nRelease date : " + release_date.strftime("%Y-%m-%d %H:%M:%S"))
 	if album["credits"] != None : f.write("\n\nCredits :\n----\n" + album["credits"])
 	if album["about"] != None : f.write("\n\nAbout :\n----\n" + album["about"])
 	f.close()

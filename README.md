@@ -7,7 +7,7 @@
 
 License
 =======
-Bandcamp Mp3 Downloader 0.1.3
+Bandcamp Mp3 Downloader 0.1.4
 Copyright (c) 2012 cisoun, Cyriaque Skrapits &lt;cysoun[at]gmail.com&gt;
 
 This program is free software: you can redistribute it and/or modify
