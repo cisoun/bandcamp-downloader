@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Bandcamp Mp3 Downloader 0.1.4
+# Bandcamp Mp3 Downloader
 # Copyright (c) 2012 cisoun, Cyriaque Skrapits <cysoun[at]gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = "0.1.4"
+VERSION = "0.1.5"
 
 
 import sys
@@ -168,7 +168,7 @@ if __name__ == "__main__":
 	print()
 	for track in tracks:
 		f = "%02d. %s.mp3" % (track["track_num"], track["title"])
-		Download(track["file"], f, "Track " + str(track["track_num"]) + "/" + str(len(tracks)))
+		Download(track["file"], f, "Track " + str(tracks.index(track) + 1) + "/" + str(len(tracks)))
 		# Tag.
 		if can_tag == False : continue # Skip the tagging operation if stagger cannot be loaded.
 		# Try to load the mp3 in stagger.
