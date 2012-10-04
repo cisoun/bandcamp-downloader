@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = "0.1.5"
+VERSION = "0.1.6"
 
 
 import sys
@@ -37,6 +37,11 @@ except:
 # Download a file and show its progress.
 # Taken from http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
 def Download(url, out, message):
+	# Check if the file is availabe otherwise, skip.
+	if not re.match("^http://(\w+)\.(\w+)\.([-\w]|[\?\/\=\-\&\.])*$", str(url)):
+		print (message + " : File unavailable. Skipping...")
+		return(False)
+	# Let's do this !
 	u = urllib.request.urlopen(url)
 	f = open(out, "wb")
 	meta = u.info()
@@ -56,6 +61,7 @@ def Download(url, out, message):
 		sys.stdout.flush()
 	f.close()
 	print()
+	return(True)
 
 # Return some JSON things...
 def GetDataFromProperty(p, bracket = False):
@@ -166,9 +172,13 @@ if __name__ == "__main__":
 
 	# Tracks.
 	print()
+	got_error = False
 	for track in tracks:
 		f = "%02d. %s.mp3" % (track["track_num"], track["title"])
-		Download(track["file"], f, "Track " + str(tracks.index(track) + 1) + "/" + str(len(tracks)))
+		# Skip if file unavailable. Can happens with some albums.
+		if not Download(track["file"], f, "Track " + str(tracks.index(track) + 1) + "/" + str(len(tracks))):
+			got_error = True
+			continue
 		# Tag.
 		if can_tag == False : continue # Skip the tagging operation if stagger cannot be loaded.
 		# Try to load the mp3 in stagger.
@@ -195,6 +205,13 @@ if __name__ == "__main__":
 			t.write()
 		except:
 			print("[Warning] Can't add tags, skipped.")
+	if got_error:
+		print()
+		print(80 * "=")
+		print("OOPS !")
+		print("Looks like some tracks haven't been reached.")
+		print("It can happen with some albums. They sometimes don't allow to listen to some of their tracks. Sorry for you.")
+		print(80 * "=")
 
 
 #===============================================================================
