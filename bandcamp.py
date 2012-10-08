@@ -17,13 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = "0.1.6"
+VERSION = "0.1.7"
 
 
 import sys
 import urllib.request
 import re
 import json
+import math
 from datetime import datetime, date, time
 try:
 	import stagger
@@ -38,7 +39,7 @@ except:
 # Taken from http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
 def Download(url, out, message):
 	# Check if the file is availabe otherwise, skip.
-	if not re.match("^http://(\w+)\.(\w+)\.([-\w]|[\?\/\=\-\&\.])*$", str(url)):
+	if not re.match("^http://(\w+)\.(\w+)\.([\w\?\/\=\-\&\.])*$", str(url)):
 		print (message + " : File unavailable. Skipping...")
 		return(False)
 	# Let's do this !
@@ -48,15 +49,18 @@ def Download(url, out, message):
 	file_size = int(meta["Content-Length"])
 	file_size_dl = 0
 	block_sz = 8192
+	t = message + " (" + "{:d}".format(int(file_size / 1024)) + " ko) : "
+	pb_len = 25
+	space_len = 80 - pb_len - len(t) - 2
 	while True:
 		buffer = u.read(block_sz)
 		if not buffer:
 			break
 		file_size_dl += len(buffer)
 		f.write(buffer)
-		t = message + " (" + "{:d}".format(int(file_size / 1024)) + " ko) : "
-		status =  t + (" " * int(48 - len(t))) + "[" + ("#" * int(file_size_dl * 30 / file_size)) + (" " * int(30 - (file_size_dl * 30 / file_size))) + "]"
-		status = status + chr(8) * (len(status) + 1)
+		progress = math.ceil(file_size_dl * pb_len / file_size)
+		status =  t + (" " * space_len) + "[" + ("#" * progress) + (" " * (pb_len - progress)) + "]"
+		status = status + chr(8) * (len(status))
 		sys.stdout.write(status)
 		sys.stdout.flush()
 	f.close()
@@ -111,7 +115,8 @@ if __name__ == "__main__":
 	if not re.match("^http://(\w+)\.bandcamp\.com([-\w]|/)*$", sys.argv[1]):
 		print("[Error] This url doesn't seems to be a valid bandcamp url.")
 		print("\nIt should be something like this :\n" + sys.argv[0] + " http://artist.bandcamp.com/album/blahblahblah\n")
-		sys.exit(0)
+		if input("Look for albums anyway ? [y/n] : ") != "y": sys.exit(0)
+		print()
 
 
 #===============================================================================
@@ -132,11 +137,15 @@ if __name__ == "__main__":
 		sys.exit(0)
 
 	# We only load the essential datas.
+	tracks = GetDataFromProperty("trackinfo", True)
+	if tracks == 0 :
+		print("[Error] Tracks not found. This is unecessary to continue.")
+		print("Aborting...")
+		sys.exit(0)
 	album = GetDataFromProperty("current", True)[0]
 	artist = GetDataFromProperty("artist").replace('"', '').replace('\\', '')
 	artwork = GetDataFromProperty("artThumbURL").replace('"', '').replace('\\', '')
 	artwork_full = GetDataFromProperty("artFullsizeUrl").replace('"', '').replace('\\', '')
-	tracks = GetDataFromProperty("trackinfo", True)
 	if album == 0 : print("[Warning] Album informations not found.")
 	if artist == 0 : print("[Warning] Artist informations not found.")
 	if artwork == 0  : print("[Warning] Cover not found.")
@@ -145,10 +154,6 @@ if __name__ == "__main__":
 		release_date = datetime.strptime(album["release_date"], "%d %b %Y %H:%M:%S GMT")
 	except:
 		print("[Warning] Cannot find release date.")
-	if tracks == 0 :
-		print("[Error] Tracks not found. This is unecessary to continue.")
-		print("Aborting...")
-		sys.exit(0)
 
 
 #===============================================================================
