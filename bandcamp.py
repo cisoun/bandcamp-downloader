@@ -179,7 +179,7 @@ if __name__ == "__main__":
 	print()
 	got_error = False
 	for track in tracks:
-		f = "%02d. %s.mp3" % (track["track_num"], track["title"])
+		f = "%02d. %s.mp3" % (track["track_num"], track["title"].replace("\\", "").replace("/", ""))
 		# Skip if file unavailable. Can happens with some albums.
 		if not Download(track["file"], f, "Track " + str(tracks.index(track) + 1) + "/" + str(len(tracks))):
 			got_error = True
