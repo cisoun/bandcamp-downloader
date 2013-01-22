@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = "0.1.7"
+VERSION = "0.1.8"
 
 
 import sys
