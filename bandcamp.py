@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = "0.1.8"
+VERSION = "0.1.10"
 
 
 import sys
@@ -33,7 +33,6 @@ try:
 except:
 	print("[Error] Can't import stagger, will skip mp3 tagging.")
 	can_tag = False
-
 
 # Download a file and show its progress.
 # Taken from http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
@@ -79,7 +78,6 @@ def GetDataFromProperty(p, bracket = False):
 # Print a JSON data.
 def PrintData(d):
 	print(json.dumps(d, sort_keys = True, indent = 2))
-
 
 if __name__ == "__main__":
 #===============================================================================
@@ -166,7 +164,9 @@ if __name__ == "__main__":
 	# List the tracks.
 	print("\nTracks found :\n----")
 	for i in range(0, len(tracks)):
-		print(str(tracks[i]["track_num"]) + ". " + str(tracks[i]["title"]))
+		# Track number available ?
+		track_num = str(tracks[i]["track_num"]) + ". " if tracks[i]["track_num"] != None else ""
+		print(track_num + str(tracks[i]["title"]))
 	exit
 	# Artwork.
 	print()
@@ -179,9 +179,13 @@ if __name__ == "__main__":
 	print()
 	got_error = False
 	for track in tracks:
-		f = "%02d. %s.mp3" % (track["track_num"], track["title"].replace("\\", "").replace("/", ""))
+		# Skip track number if missing.
+		if track["track_num"] != None:
+			f = "%02d. %s.mp3" % (track["track_num"], track["title"].replace("\\", "").replace("/", ""))
+		else:
+			f = "%s.mp3" % track["title"].replace("\\", "").replace("/", "")
 		# Skip if file unavailable. Can happens with some albums.
-		if not Download(track["file"], f, "Track " + str(tracks.index(track) + 1) + "/" + str(len(tracks))):
+		if not Download(track["file"]["mp3-128"], f, "Track " + str(tracks.index(track) + 1) + "/" + str(len(tracks))):
 			got_error = True
 			continue
 		# Tag.
