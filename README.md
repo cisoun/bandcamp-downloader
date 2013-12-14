@@ -7,7 +7,7 @@
 
 License
 =======
-Bandcamp Mp3 Downloader 0.1.10
+Bandcamp Mp3 Downloader 0.1.11
 Copyright (c) 2012 cisoun, Cyriaque Skrapits &lt;cysoun[at]gmail.com&gt;
 
 This program is free software: you can redistribute it and/or modify
@@ -37,10 +37,8 @@ bandcamp.py http://&lt;artist&gt;.bandcamp.com/album/&lt;album&gt;
 
 Piracy
 ======
-Remember : piracy isn't good for the artists (that's what lobbies from the
-music industry think but whatever...), so use this script carefuly, buy their
-albums and support them !
+Remember : piracy is bad. Use this script to download an album and buy it later.
+Support your favorite artists !
 
 Thanks !
 
-(How ironic...)

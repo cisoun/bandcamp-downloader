@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = "0.1.10"
+VERSION = "0.1.11"
 
 
 import sys
@@ -39,7 +39,6 @@ except:
 def Download(url, out, message):
 	# Check if the file is availabe otherwise, skip.
 	if not re.match("^http://(\w+)\.(\w+)\.([\w\?\/\=\-\&\.])*$", str(url)):
-		print (message + " : File unavailable. Skipping...")
 		return(False)
 	# Let's do this !
 	u = urllib.request.urlopen(url)
@@ -185,9 +184,16 @@ if __name__ == "__main__":
 		else:
 			f = "%s.mp3" % track["title"].replace("\\", "").replace("/", "")
 		# Skip if file unavailable. Can happens with some albums.
-		if not Download(track["file"]["mp3-128"], f, "Track " + str(tracks.index(track) + 1) + "/" + str(len(tracks))):
+		message = "Track " + str(tracks.index(track) + 1) + "/" + str(len(tracks))
+		try:
+			downloaded = Download(track["file"]["mp3-128"], f, message)
+			if not downloaded:
+				raise Exception
+		except Exception:
 			got_error = True
+			print(message + " : File unavailable. Skipping...")
 			continue
+
 		# Tag.
 		if can_tag == False : continue # Skip the tagging operation if stagger cannot be loaded.
 		# Try to load the mp3 in stagger.
