@@ -1,0 +1,7 @@
+include *.txt
+include README
+include LICENSE
+include AUTHORS
+include ChangeLog
+include test/*.py
+include test/samples/*.id3
