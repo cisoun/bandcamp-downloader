@@ -15,9 +15,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Contributors:
+#	JamieMellway
+#	jtripper
 
 
-VERSION = "0.1.11"
+VERSION = "0.1.12"
 
 
 import sys
@@ -38,7 +42,7 @@ except:
 # Taken from http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
 def Download(url, out, message):
 	# Check if the file is availabe otherwise, skip.
-	if not re.match("^http://(\w+)\.(\w+)\.([\w\?\/\=\-\&\.])*$", str(url)):
+	if not re.match("^https?://(\w+)\.(\w+)\.([\w\?\/\=\-\&\.])*$", str(url)):
 		return(False)
 	# Let's do this !
 	u = urllib.request.urlopen(url)
@@ -109,7 +113,7 @@ if __name__ == "__main__":
 		sys.exit(0)
 
 	# Valid URL ?
-	if not re.match("^http://(\w+)\.bandcamp\.com([-\w]|/)*$", sys.argv[1]):
+	if not re.match("^https?://(\w+)\.bandcamp\.com([-\w]|/)*$", sys.argv[1]):
 		print("[Error] This url doesn't seems to be a valid bandcamp url.")
 		print("\nIt should be something like this :\n" + sys.argv[0] + " http://artist.bandcamp.com/album/blahblahblah\n")
 		if input("Look for albums anyway ? [y/n] : ") != "y": sys.exit(0)
@@ -213,7 +217,10 @@ if __name__ == "__main__":
 			t = stagger.read_tag(f)
 			t.album = album["title"]
 			t.artist = artist
-			t.date = release_date.strftime("%Y-%m-%d %H:%M:%S")
+			if release_date.strftime("%H:%M:%S") == "00:00:00":
+				t.date = release_date.strftime("%Y-%m-%d")
+			else:
+				t.date = release_date.strftime("%Y-%m-%d %H:%M:%S")
 			t.title = track["title"]
 			t.track = track["track_num"]
 			t.picture = artwork_full_name
