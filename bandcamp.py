@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-# Bandcamp Mp3 Downloader
-# Copyright (c) 2012 cisoun, Cyriaque Skrapits <cysoun[at]gmail.com>
+# Bandcamp MP3 Downloader
+# Copyright (c) 2012-2014 cisoun
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #	jtripper
 
 
-VERSION = "0.1.12"
+VERSION = "0.1.12-1"
 
 
 import sys
@@ -91,10 +91,10 @@ if __name__ == "__main__":
 
 
 	print("=" * 80)
-	print("\n\tBandcamp Mp3 Downloader " + VERSION)
+	print("\n\tBandcamp MP3 Downloader " + VERSION)
 	print("\t----")
 	print("\tRemember, piracy isn't good for the artists,")
-	print("\tuse this script carefuly, buy their albums and support them !\n")
+	print("\tuse this script carefully, buy their albums and support them !\n")
 	print("=" * 80)
 	print()
 
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 	# We only load the essential datas.
 	tracks = GetDataFromProperty("trackinfo", True)
 	if tracks == 0 :
-		print("[Error] Tracks not found. This is unecessary to continue.")
+		print("[Error] Tracks not found. It is unecessary to continue.")
 		print("Aborting...")
 		sys.exit(0)
 	album = GetDataFromProperty("current", True)[0]
