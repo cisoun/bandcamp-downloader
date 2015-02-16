@@ -33,48 +33,48 @@ from datetime import datetime, date, time
 try:
 	import stagger
 	from stagger.id3 import *
-	can_tag = True
+	canTag = True
 except:
 	print("[Error] Can't import stagger, will skip mp3 tagging.")
-	can_tag = False
+	canTag = False
 
 # Download a file and show its progress.
 # Taken from http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
-def Download(url, out, message):
-	# Check if the file is availabe otherwise, skip.
-	if not re.match("^https?://(\w+)\.(\w+)\.([\w\?\/\=\-\&\.])*$", str(url)):
+def download(sourceUrl, destPath, indicatorMessage):
+	# Check if the file is available otherwise, skip.
+	if not re.match("^https?://(\w+)\.(\w+)\.([\w\?\/\=\-\&\.])*$", str(sourceUrl)):
 		return(False)
 	# Let's do this !
-	u = urllib.request.urlopen(url)
-	f = open(out, "wb")
-	meta = u.info()
-	file_size = int(meta["Content-Length"])
-	file_size_dl = 0
-	block_sz = 8192
-	t = message + " (" + "{:d}".format(int(file_size / 1024)) + " ko) : "
-	pb_len = 25
-	space_len = 80 - pb_len - len(t) - 2
+	httpResponse = urllib.request.urlopen(sourceUrl)
+	file = open(destPath, "wb")
+	meta = httpResponse.info()
+	totalFileSize = int(meta["Content-Length"])
+	downloadedSize = 0
+	blockSize = 8192
+	progressBarString = indicatorMessage + " (" + "{:d}".format(int(totalFileSize / 1024)) + " ko) : "
+	progressBarSize = 25
+	spaceLength = 80 - progressBarSize - len(progressBarString) - 2
 	while True:
-		buffer = u.read(block_sz)
+		buffer = httpResponse.read(blockSize)
 		if not buffer:
 			break
-		file_size_dl += len(buffer)
-		f.write(buffer)
-		progress = math.ceil(file_size_dl * pb_len / file_size)
-		status =  t + (" " * space_len) + "[" + ("#" * progress) + (" " * (pb_len - progress)) + "]"
+		downloadedSize += len(buffer)
+		file.write(buffer)
+		progress = math.ceil(downloadedSize * progressBarSize / totalFileSize)
+		status =  progressBarString + (" " * spaceLength) + "[" + ("#" * progress) + (" " * (progressBarSize - progress)) + "]"
 		status = status + chr(8) * (len(status))
 		sys.stdout.write(status)
 		sys.stdout.flush()
-	f.close()
+	file.close()
 	print()
 	return(True)
 
 # Return some JSON things...
-def GetDataFromProperty(p, bracket = False):
+def getDataFromProperty(property, bracket = False):
 	try:
 		if bracket:
-			return(json.loads("[{" + (re.findall(p + "[ ]?: \[?\{(.+)\}\]?,", s, re.MULTILINE)[0] + "}]")))
-		return(re.findall(p + "[ ]?: ([^,]+)", s, re.DOTALL)[0])
+			return(json.loads("[{" + (re.findall(property + "[ ]?: \[?\{(.+)\}\]?,", pageContent, re.MULTILINE)[0] + "}]")))
+		return(re.findall(property + "[ ]?: ([^,]+)", pageContent, re.DOTALL)[0])
 	except:
 		return(0)
 
@@ -114,8 +114,8 @@ if __name__ == "__main__":
 
 	# Valid URL ?
 	if not re.match("^https?://(\w+)\.bandcamp\.com([-\w]|/)*$", sys.argv[1]):
-		print("[Error] This url doesn't seems to be a valid bandcamp url.")
-		print("\nIt should be something like this :\n" + sys.argv[0] + " http://artist.bandcamp.com/album/blahblahblah\n")
+		print("[Error] This url doesn't seem to be a valid Bandcamp url.")
+		print("\nIt should look something like this :\n" + sys.argv[0] + " http://artist.bandcamp.com/album/blahblahblah\n")
 		if input("Look for albums anyway ? [y/n] : ") != "y": sys.exit(0)
 		print()
 
@@ -127,30 +127,30 @@ if __name__ == "__main__":
 #===============================================================================
 
 
-	# Load the code.
+	# Load the web page content.
 	try:
-		f = urllib.request.urlopen(sys.argv[1])
-		s = f.read().decode('utf-8')
-		f.close()
+		albumPage = urllib.request.urlopen(sys.argv[1])
+		pageContent = albumPage.read().decode('utf-8')
+		albumPage.close()
 	except:
 		print("[Error] Can't reach the page.")
 		print("Aborting...")
 		sys.exit(0)
 
 	# We only load the essential datas.
-	tracks = GetDataFromProperty("trackinfo", True)
+	tracks = getDataFromProperty("trackinfo", True)
 	if tracks == 0 :
-		print("[Error] Tracks not found. It is unecessary to continue.")
+		print("[Error] No tracks found.")
 		print("Aborting...")
 		sys.exit(0)
-	album = GetDataFromProperty("current", True)[0]
-	artist = GetDataFromProperty("artist").replace('"', '').replace('\\', '')
-	artwork = GetDataFromProperty("artThumbURL").replace('"', '').replace('\\', '')
-	artwork_full = GetDataFromProperty("artFullsizeUrl").replace('"', '').replace('\\', '')
-	if album == 0 : print("[Warning] Album informations not found.")
-	if artist == 0 : print("[Warning] Artist informations not found.")
-	if artwork == 0  : print("[Warning] Cover not found.")
-	if artwork_full == 0  : print("[Warning] Full size cover not found.")
+	album = getDataFromProperty("current", True)[0]
+	artist = getDataFromProperty("artist").replace('"', '').replace('\\', '')
+	artworkUrl = getDataFromProperty("artThumbURL").replace('"', '').replace('\\', '')
+	artworkLargeUrl = getDataFromProperty("artFullsizeUrl").replace('"', '').replace('\\', '')
+	if album == 0 : print("[Warning] Album information not found.")
+	if artist == 0 : print("[Warning] Artist information not found.")
+	if artworkUrl == 0  : print("[Warning] Cover not found.")
+	if artworkLargeUrl == 0  : print("[Warning] Full size cover not found.")
 	try:
 		release_date = datetime.strptime(album["release_date"], "%d %b %Y %H:%M:%S GMT")
 	except:
@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
 #===============================================================================
 #
-#	3. Download & tag.
+#	3. Download tracks & tag.
 #
 #===============================================================================
 
@@ -168,53 +168,53 @@ if __name__ == "__main__":
 	print("\nTracks found :\n----")
 	for i in range(0, len(tracks)):
 		# Track number available ?
-		track_num = str(tracks[i]["track_num"]) + ". " if tracks[i]["track_num"] != None else ""
-		print(track_num + str(tracks[i]["title"]))
+		trackNumber = str(tracks[i]["track_num"]) + ". " if tracks[i]["track_num"] != None else ""
+		print(trackNumber + str(tracks[i]["title"]))
 	exit
 	# Artwork.
 	print()
-	artwork_name = artwork.split('/')[-1]
-	artwork_full_name = artwork_full.split('/')[-1]
-	Download(artwork, artwork_name, "Cover")
-	Download(artwork_full, artwork_full_name, "Fullsize cover")
+	artworkName = artworkUrl.split('/')[-1]
+	artworkLargeName = artworkLargeUrl.split('/')[-1]
+	download(artworkUrl, artworkName, "Cover")
+	download(artworkLargeUrl, artworkLargeName, "Fullsize cover")
 
 	# Tracks.
 	print()
-	got_error = False
+	isError = False
 	for track in tracks:
 		# Skip track number if missing.
 		if track["track_num"] != None:
-			f = "%02d. %s.mp3" % (track["track_num"], track["title"].replace("\\", "").replace("/", ""))
+			albumPage = "%02d. %s.mp3" % (track["track_num"], track["title"].replace("\\", "").replace("/", ""))
 		else:
-			f = "%s.mp3" % track["title"].replace("\\", "").replace("/", "")
+			albumPage = "%s.mp3" % track["title"].replace("\\", "").replace("/", "")
 		# Skip if file unavailable. Can happens with some albums.
 		message = "Track " + str(tracks.index(track) + 1) + "/" + str(len(tracks))
 		try:
-			downloaded = Download(track["file"]["mp3-128"], f, message)
-			if not downloaded:
+			isDownloaded = download(track["file"]["mp3-128"], albumPage, message)
+			if not isDownloaded:
 				raise Exception
 		except Exception:
-			got_error = True
+			isError = True
 			print(message + " : File unavailable. Skipping...")
 			continue
 
 		# Tag.
-		if can_tag == False : continue # Skip the tagging operation if stagger cannot be loaded.
+		if canTag == False : continue # Skip the tagging operation if stagger cannot be loaded.
 		# Try to load the mp3 in stagger.
 		try:
-			t = stagger.read_tag(f)
+			t = stagger.read_tag(albumPage)
 		except:
 			# Try to add an empty ID3 header.
 			# As long stagger crashes when there's no header, use this hack.
 			# ID3v2 infos : http://id3.org/id3v2-00
-			m = open(f, 'r+b')
-			old = m.read()
-			m.seek(0)
-			m.write(b"\x49\x44\x33\x02\x00\x00\x00\x00\x00\x00" + old) # Meh...
-			m.close
+			trackFile = open(albumPage, 'r+b')
+			oldContent = trackFile.read()
+			trackFile.seek(0)
+			trackFile.write(b"\x49\x44\x33\x02\x00\x00\x00\x00\x00\x00" + oldContent) # Meh...
+			trackFile.close()
 		# Let's try again...
 		try:
-			t = stagger.read_tag(f)
+			t = stagger.read_tag(albumPage)
 			t.album = album["title"]
 			t.artist = artist
 			if release_date.strftime("%H:%M:%S") == "00:00:00":
@@ -223,16 +223,16 @@ if __name__ == "__main__":
 				t.date = release_date.strftime("%Y-%m-%d %H:%M:%S")
 			t.title = track["title"]
 			t.track = track["track_num"]
-			t.picture = artwork_full_name
+			t.picture = artworkLargeName
 			t.write()
 		except:
 			print("[Warning] Can't add tags, skipped.")
-	if got_error:
+	if isError:
 		print()
 		print(80 * "=")
 		print("OOPS !")
-		print("Looks like some tracks haven't been reached.")
-		print("It can happen with some albums. They sometimes don't allow to listen to some of their tracks. Sorry for you.")
+		print("Looks like some tracks can't be downloaded.")
+		print("Some albums don't allow you to listen to every track. Sorry :(")
 		print(80 * "=")
 
 
@@ -244,13 +244,13 @@ if __name__ == "__main__":
 
 	
 	print("\nAdding additional infos...")
-	f = open("INFOS", "w+")
-	f.write("Artist : " + artist)
-	if album["title"] != None : f.write("\nAlbum : " + album["title"])
-	if release_date != None : f.write("\nRelease date : " + release_date.strftime("%Y-%m-%d %H:%M:%S"))
-	if album["credits"] != None : f.write("\n\nCredits :\n----\n" + album["credits"])
-	if album["about"] != None : f.write("\n\nAbout :\n----\n" + album["about"])
-	f.close()
+	albumPage = open("INFOS", "w+")
+	albumPage.write("Artist : " + artist)
+	if album["title"] != None : albumPage.write("\nAlbum : " + album["title"])
+	if release_date != None : albumPage.write("\nRelease date : " + release_date.strftime("%Y-%m-%d %H:%M:%S"))
+	if album["credits"] != None : albumPage.write("\n\nCredits :\n----\n" + album["credits"])
+	if album["about"] != None : albumPage.write("\n\nAbout :\n----\n" + album["about"])
+	albumPage.close()
 
 	# Done.
 	print("\nFinished !\n")
