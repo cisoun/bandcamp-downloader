@@ -97,7 +97,6 @@ def main():
 # Download a file and show its progress.
 # Taken from http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
 def downloadFile(sourceUrl, destPath, indicatorMessage):
-    return False
     # Check if the file is available otherwise, skip.
     if not re.match("^https?://(\w+)\.(\w+)\.([\w\?\/\=\-\&\.])*$", str(sourceUrl)):
         return (False)
@@ -111,16 +110,17 @@ def downloadFile(sourceUrl, destPath, indicatorMessage):
     progressBarString = indicatorMessage + " (" + "{:d}".format(int(totalFileSize / 1024)) + " ko) : "
     progressBarSize = 25
     spaceLength = 80 - progressBarSize - len(progressBarString) - 2
-    while True:
-        buffer = httpResponse.read(blockSize)
+    while True:        
+        buffer = httpResponse.read(blockSize)        
         if not buffer:
             break
         downloadedSize += len(buffer)
         file.write(buffer)
         progress = math.ceil(downloadedSize * progressBarSize / totalFileSize)
         status = progressBarString + (" " * spaceLength) + "[" + ("#" * progress) + (
-        " " * (progressBarSize - progress)) + "]"
-        status = status + chr(8) * (len(status))
+        " " * (progressBarSize - progress)) + "]" #Progress bar
+        status += " {}%".format(math.ceil(100 * downloadedSize / totalFileSize)) #percentage
+        status += chr(8) * (len(status))
         sys.stdout.write(status)
         sys.stdout.flush()
     file.close()
