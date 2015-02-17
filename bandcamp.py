@@ -97,6 +97,7 @@ def main():
 # Download a file and show its progress.
 # Taken from http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
 def downloadFile(sourceUrl, destPath, indicatorMessage):
+    return False
     # Check if the file is available otherwise, skip.
     if not re.match("^https?://(\w+)\.(\w+)\.([\w\?\/\=\-\&\.])*$", str(sourceUrl)):
         return (False)
@@ -207,7 +208,7 @@ def downloadArtwork(pageContent):
 
 def getTrackFileName(trackInfo):
     # Skip track number in file name if it's missing.
-    if "track_num" in trackInfo:
+    if trackInfo["track_num"] != None:
         trackFileName = "%02d. %s.mp3" % (trackInfo["track_num"], removeInvalidPathCharacters(trackInfo["title"]).replace("/", ""))
     else:
         trackFileName = "%s.mp3" % removeInvalidPathCharacters(trackInfo["title"]).replace("/", "");
@@ -264,13 +265,13 @@ def getArtistName(pageContent):
 def writeAlbumInformation(artistName="", albumInfo={}, releaseDateString=""):
     infoFile = open("INFOS", "w+")
     infoFile.write("Artist : " + artistName)
-    if "title" in albumInfo:
+    if albumInfo["title"] != None:
         infoFile.write("\nAlbum : " + albumInfo["title"])
     if releaseDateString:
         infoFile.write("\nRelease date : " + releaseDateString.strftime("%Y-%m-%d %H:%M:%S"))
-    if "credits" in albumInfo:
+    if albumInfo["credits"] != None:
         infoFile.write("\n\nCredits :\n----\n" + albumInfo["credits"])
-    if "about" in albumInfo:
+    if albumInfo["about"] != None:
         infoFile.write("\n\nAbout :\n----\n" + albumInfo["about"])
     infoFile.close()
 
