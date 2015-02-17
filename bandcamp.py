@@ -258,7 +258,7 @@ def getAlbumInfo(pageContent):
 
 
 def getArtistName(pageContent):
-    return getInfoFromPageContent(pageContent, "artist")
+    return getInfoFromPageContent(pageContent, "artist").replace("\"","")
 
 
 def writeAlbumInformation(artistName="", albumInfo={}, releaseDateString=""):
