@@ -29,6 +29,7 @@ import urllib.request
 import re
 import json
 import math
+import os
 from datetime import datetime, date, time
 try:
 	import stagger
@@ -147,7 +148,12 @@ if __name__ == "__main__":
 	artist = GetDataFromProperty("artist").replace('"', '').replace('\\', '')
 	artwork = GetDataFromProperty("artThumbURL").replace('"', '').replace('\\', '')
 	artwork_full = GetDataFromProperty("artFullsizeUrl").replace('"', '').replace('\\', '')
-	if album == 0 : print("[Warning] Album informations not found.")
+	if album == 0 :
+		print("[Warning] Album informations not found.")
+	elif "title" in album:
+		dirname=re.sub('[^A-Za-z0-9-_ ]+', '', album["title"])
+		os.makedirs(dirname, exist_ok=True)
+		os.chdir(dirname)
 	if artist == 0 : print("[Warning] Artist informations not found.")
 	if artwork == 0  : print("[Warning] Cover not found.")
 	if artwork_full == 0  : print("[Warning] Full size cover not found.")
