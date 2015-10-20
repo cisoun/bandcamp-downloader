@@ -26,9 +26,10 @@
 #	JamieMellway
 #	jtripper
 #	diogovk
+#	haansn08
 
 
-VERSION = "0.2"
+VERSION = "0.2-1"
 
 
 import json
@@ -51,7 +52,7 @@ except:
 
 # Download a file and show its progress.
 # Taken from http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
-def Download(url, out, message):
+def Download(url, destination, message):
 	# Check if the file is availabe otherwise, skip.
 	if not re.match("^(https?:)?//(\w+)\.(\w+)\.([\w\?\/\=\-\&\.])*$", str(url)):
 		return(False)
@@ -63,7 +64,7 @@ def Download(url, out, message):
 		u = urllib.request.urlopen(url)
 	except URLError: # Does it work ?
 		print(u.getcode())
-	f = open(out, "wb")
+	file = open(destination, "wb")
 	meta = u.info()
 	file_size = int(meta["Content-Length"])
 	file_size_dl = 0
@@ -76,13 +77,13 @@ def Download(url, out, message):
 		if not buffer:
 			break
 		file_size_dl += len(buffer)
-		f.write(buffer)
+		file.write(buffer)
 		progress = math.ceil(file_size_dl * pb_len / file_size)
 		status =  t + (" " * space_len) + "[" + ("#" * progress) + (" " * (pb_len - progress)) + "]"
 		status = status + chr(8) * (len(status))
 		sys.stdout.write(status)
 		sys.stdout.flush()
-	f.close()
+	file.close()
 	print()
 	return(True)
 
@@ -132,8 +133,8 @@ if __name__ == "__main__":
 
 	# Valid URL ?
 	if not re.match("^https?://(\w+)\.bandcamp\.com([-\w]|/)*$", sys.argv[1]):
-		print("[Error] This url doesn't seems to be a valid bandcamp url.")
-		print("\nIt should be something like this :\n" + sys.argv[0] + " http://artist.bandcamp.com/album/blahblahblah\n")
+		print("[Error] This url doesn't seem to be a valid Bandcamp url.")
+		print("\nIt should look something like this :\n" + sys.argv[0] + " http://artist.bandcamp.com/album/blahblahblah\n")
 		if input("Look for albums anyway ? [y/n] : ") != "y": sys.exit(0)
 		print()
 
@@ -145,11 +146,11 @@ if __name__ == "__main__":
 #===============================================================================
 
 
-	# Load the code.
+	# Load the web page.
 	try:
-		f = urllib.request.urlopen(sys.argv[1])
-		s = f.read().decode('utf-8')
-		f.close()
+		content = urllib.request.urlopen(sys.argv[1])
+		s = content.read().decode('utf-8')
+		content.close()
 	except:
 		print("[Error] Can't reach the page.")
 		print("Aborting...")
@@ -183,7 +184,7 @@ if __name__ == "__main__":
 
 #===============================================================================
 #
-#	3. Download & tag.
+#	3. Download tracks & tag.
 #
 #===============================================================================
 
@@ -275,13 +276,13 @@ if __name__ == "__main__":
 
 
 	print("\nAdding additional infos...")
-	f = open("INFOS", "w+")
-	f.write("Artist : " + artist)
-	if album["title"] != None : f.write("\nAlbum : " + album["title"])
-	if release_date != None : f.write("\nRelease date : " + release_date.strftime("%Y-%m-%d %H:%M:%S"))
-	if album["credits"] != None : f.write("\n\nCredits :\n----\n" + album["credits"])
-	if album["about"] != None : f.write("\n\nAbout :\n----\n" + album["about"])
-	f.close()
+	file = open("INFOS", "w+")
+	file.write("Artist : " + artist)
+	if album["title"] != None : file.write("\nAlbum : " + album["title"])
+	if release_date != None : file.write("\nRelease date : " + release_date.strftime("%Y-%m-%d %H:%M:%S"))
+	if album["credits"] != None : file.write("\n\nCredits :\n----\n" + album["credits"])
+	if album["about"] != None : file.write("\n\nAbout :\n----\n" + album["about"])
+	file.close()
 
 	# Done.
 	print("\nFinished !\n")
