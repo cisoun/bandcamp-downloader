@@ -2,7 +2,7 @@
 
 License
 =======
-Bandcamp MP3 Downloader 0.2
+Bandcamp MP3 Downloader
 
 Copyright (c) 2012-2015 cisoun
 
