@@ -28,7 +28,7 @@
 #	diogovk
 
 
-VERSION = "0.1.13"
+VERSION = "0.2"
 
 
 import json
@@ -195,11 +195,12 @@ if __name__ == "__main__":
 		track_num = str(tracks[i]["track_num"]) + ". " if tracks[i]["track_num"] != None else ""
 		print(track_num + str(tracks[i]["title"]))
 	exit
+
 	# Artwork.
 	print()
-	artwork_name = artwork.split('/')[-1]
-	artwork_full_name = artwork_full.split('/')[-1]
-	Download(artwork, artwork_name, "Cover")
+	artwork_name = "cover-mini.jpg" #artwork.split('/')[-1]
+	artwork_full_name = "cover.jpg" #artwork_full.split('/')[-1]
+	#Download(artwork, artwork_name, "Cover") # Let's skip the mini cover for a while.
 	Download(artwork_full, artwork_full_name, "Fullsize cover")
 
 	# Download tracks.
