@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Bandcamp MP3 Downloader
-# Copyright (c) 2012-2014 cisoun
+# Copyright (c) 2012-2015 cisoun
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,20 +16,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+#
+# Note : this is a procedural code. I don't know why some people really want
+# to turn it OOP. It has one job and it does it right like this.
+# Please don't blame or whip me.
+#
+#
 # Contributors:
 #	JamieMellway
 #	jtripper
+#	diogovk
 
 
-VERSION = "0.1.12-1"
+VERSION = "0.1.13"
 
 
-import sys
-import urllib.request
-import re
 import json
 import math
 import os
+import re
+import shutil
+import sys
+import urllib.request
+from urllib import error
 from datetime import datetime, date, time
 try:
 	import stagger
@@ -39,14 +48,21 @@ except:
 	print("[Error] Can't import stagger, will skip mp3 tagging.")
 	can_tag = False
 
+
 # Download a file and show its progress.
 # Taken from http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
 def Download(url, out, message):
 	# Check if the file is availabe otherwise, skip.
-	if not re.match("^https?://(\w+)\.(\w+)\.([\w\?\/\=\-\&\.])*$", str(url)):
+	if not re.match("^(https?:)?//(\w+)\.(\w+)\.([\w\?\/\=\-\&\.])*$", str(url)):
 		return(False)
 	# Let's do this !
-	u = urllib.request.urlopen(url)
+	try:
+		# Check if protocol was given. Otherwise, add it.
+		if not url.startswith("http"):
+			url = "http:" + url
+		u = urllib.request.urlopen(url)
+	except URLError: # Does it work ?
+		print(u.getcode())
 	f = open(out, "wb")
 	meta = u.info()
 	file_size = int(meta["Content-Length"])
@@ -82,6 +98,7 @@ def GetDataFromProperty(p, bracket = False):
 # Print a JSON data.
 def PrintData(d):
 	print(json.dumps(d, sort_keys = True, indent = 2))
+
 
 if __name__ == "__main__":
 #===============================================================================
@@ -148,12 +165,13 @@ if __name__ == "__main__":
 	artist = GetDataFromProperty("artist").replace('"', '').replace('\\', '')
 	artwork = GetDataFromProperty("artThumbURL").replace('"', '').replace('\\', '')
 	artwork_full = GetDataFromProperty("artFullsizeUrl").replace('"', '').replace('\\', '')
+	directory = ""
 	if album == 0 :
 		print("[Warning] Album informations not found.")
 	elif "title" in album:
-		dirname=re.sub('[^A-Za-z0-9-_ ]+', '', album["title"])
-		os.makedirs(dirname, exist_ok=True)
-		os.chdir(dirname)
+		directory = re.sub("[^A-Za-z0-9-_ ]+", "", album["title"])
+		os.makedirs(directory, exist_ok=True)
+		os.chdir(directory)
 	if artist == 0 : print("[Warning] Artist informations not found.")
 	if artwork == 0  : print("[Warning] Cover not found.")
 	if artwork_full == 0  : print("[Warning] Full size cover not found.")
@@ -169,7 +187,7 @@ if __name__ == "__main__":
 #
 #===============================================================================
 
-	
+
 	# List the tracks.
 	print("\nTracks found :\n----")
 	for i in range(0, len(tracks)):
@@ -184,7 +202,7 @@ if __name__ == "__main__":
 	Download(artwork, artwork_name, "Cover")
 	Download(artwork_full, artwork_full_name, "Fullsize cover")
 
-	# Tracks.
+	# Download tracks.
 	print()
 	got_error = False
 	for track in tracks:
@@ -233,13 +251,19 @@ if __name__ == "__main__":
 			t.write()
 		except:
 			print("[Warning] Can't add tags, skipped.")
+
 	if got_error:
 		print()
 		print(80 * "=")
 		print("OOPS !")
 		print("Looks like some tracks haven't been reached.")
-		print("It can happen with some albums. They sometimes don't allow to listen to some of their tracks. Sorry for you.")
+		print("It can happen with some albums. They sometimes don't allow to listen to some of")
+		print("their tracks. Sorry for you.")
 		print(80 * "=")
+		# Remove directory if given.
+		if directory != "":
+			os.chdir("..")
+			shutil.rmtree(directory)
 
 
 #===============================================================================
@@ -248,7 +272,7 @@ if __name__ == "__main__":
 #
 #===============================================================================
 
-	
+
 	print("\nAdding additional infos...")
 	f = open("INFOS", "w+")
 	f.write("Artist : " + artist)
