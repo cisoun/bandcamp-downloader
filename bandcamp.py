@@ -29,7 +29,7 @@
 #	haansn08
 
 
-VERSION = "0.2-1"
+VERSION = "0.2-2"
 
 
 import json
@@ -263,9 +263,9 @@ if __name__ == "__main__":
 		print("their tracks. Sorry for you.")
 		print(80 * "=")
 		# Remove directory if given.
-		if directory != "":
-			os.chdir("..")
-			shutil.rmtree(directory)
+		# if directory != "":
+		# 	os.chdir("..")
+		# 	shutil.rmtree(directory)
 
 
 #===============================================================================
