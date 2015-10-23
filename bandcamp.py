@@ -29,7 +29,7 @@
 #	haansn08
 
 
-VERSION = "0.2-2"
+VERSION = "0.2.1"
 
 
 import json
@@ -194,7 +194,7 @@ if __name__ == "__main__":
 	for i in range(0, len(tracks)):
 		# Track number available ?
 		track_num = str(tracks[i]["track_num"]) + ". " if tracks[i]["track_num"] != None else ""
-		print(track_num + str(tracks[i]["title"]))
+		print(track_num + str(tracks[i]["title"].encode(sys.stdout.encoding, errors='replace')))
 	exit
 
 	# Artwork.
