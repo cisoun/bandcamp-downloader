@@ -28,8 +28,13 @@ Dependencies
 
 Usage
 =====
-bandcamp.py http://&lt;artist&gt;.bandcamp.com/album/&lt;album&gt;
+`bandcamp.py http://&lt;artist&gt;.bandcamp.com/album/&lt;album&gt;`
 
+or
+
+`bandcamp.py -f filename.txt`
+
+Where `filename.txt` contains multiple album urls, one on each line.
 
 Piracy
 ======
