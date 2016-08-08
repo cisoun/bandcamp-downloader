@@ -1,4 +1,4 @@
-﻿#!/usr/bin/python
+#!/usr/bin/python
 
 # Bandcamp MP3 Downloader
 # Copyright (c) 2012-2015 cisoun
@@ -27,7 +27,7 @@
 #    jtripper
 #    diogovk
 #    haansn08
-#   crclayton
+#    crclayton
 
 VERSION = "0.2.2"
 
@@ -121,7 +121,7 @@ if __name__ == "__main__":
 #    1. Let's get the bandcamp url in the parameters.
 #
 #===============================================================================
-
+    save_directory = os.getcwd()
 
     # parameters given?
     if len(sys.argv) == 1:
@@ -231,6 +231,7 @@ if __name__ == "__main__":
             # Skip if file unavailable. Can happens with some albums.
             message = "Track " + str(tracks.index(track) + 1) + "/" + str(len(tracks))
             try:
+                print(track)
                 downloaded = Download(track["file"]["mp3-128"], f, message)
                 if not downloaded:
                     raise Exception
@@ -299,6 +300,7 @@ if __name__ == "__main__":
         if album["about"] != None : file.write("\n\nAbout :\n----\n" + album["about"])
         file.close()
 
+        os.chdir(save_directory) 
         print("\nAlbum downloaded !\n")
 
     # Done.
