@@ -25,11 +25,15 @@ Dependencies
  - Python 3.x, http://www.python.org/
  - stagger, http://code.google.com/p/stagger/
 
-
 Usage
 =====
-bandcamp.py http://&lt;artist&gt;.bandcamp.com/album/&lt;album&gt;
+`bandcamp.py http://<artist>.bandcamp.com/album/<album>`
 
+or
+
+`bandcamp.py -f filename.txt`
+
+Where `filename.txt` contains multiple album urls, one on each line.
 
 Piracy
 ======
