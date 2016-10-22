@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Bandcamp MP3 Downloader
-# Copyright (c) 2012-2015 cisoun
+# Copyright (c) 2012-2016 cisoun
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #	haansn08
 
 
-VERSION = "0.2.1"
+VERSION = "0.2.1-1"
 
 
 import json
@@ -94,7 +94,7 @@ def GetDataFromProperty(p, bracket = False):
 			return(json.loads("[{" + (re.findall(p + "[ ]?: \[?\{(.+)\}\]?,", s, re.MULTILINE)[0] + "}]")))
 		return(re.findall(p + "[ ]?: ([^,]+)", s, re.DOTALL)[0])
 	except:
-		return(0)
+		return("0")
 
 # Print a JSON data.
 def PrintData(d):
@@ -194,8 +194,8 @@ if __name__ == "__main__":
 	for i in range(0, len(tracks)):
 		# Track number available ?
 		track_num = str(tracks[i]["track_num"]) + ". " if tracks[i]["track_num"] != None else ""
-		print(track_num + str(tracks[i]["title"].encode(sys.stdout.encoding, errors='replace')))
-	exit
+		print(track_num + tracks[i]["title"])
+		#print(track_num + tracks[i]["title"].encode(sys.stdout.encoding, errors='replace'))
 
 	# Artwork.
 	print()
@@ -226,31 +226,20 @@ if __name__ == "__main__":
 
 		# Tag.
 		if can_tag == False : continue # Skip the tagging operation if stagger cannot be loaded.
-		# Try to load the mp3 in stagger.
+
+		# Tag the file.
 		try:
-			t = stagger.read_tag(f)
-		except:
-			# Try to add an empty ID3 header.
-			# As long stagger crashes when there's no header, use this hack.
-			# ID3v2 infos : http://id3.org/id3v2-00
-			m = open(f, 'r+b')
-			old = m.read()
-			m.seek(0)
-			m.write(b"\x49\x44\x33\x02\x00\x00\x00\x00\x00\x00" + old) # Meh...
-			m.close
-		# Let's try again...
-		try:
-			t = stagger.read_tag(f)
-			t.album = album["title"]
-			t.artist = artist
+			tag = stagger.default_tag()
+			tag.album = album["title"]
+			tag.artist = artist
 			if release_date.strftime("%H:%M:%S") == "00:00:00":
-				t.date = release_date.strftime("%Y-%m-%d")
+				tag.date = release_date.strftime("%Y-%m-%d")
 			else:
-				t.date = release_date.strftime("%Y-%m-%d %H:%M:%S")
-			t.title = track["title"]
-			t.track = track["track_num"]
-			t.picture = artwork_full_name
-			t.write()
+				tag.date = release_date.strftime("%Y-%m-%d %H:%M:%S")
+			tag.title = track["title"]
+			tag.track = track["track_num"]
+			tag.picture = artwork_full_name
+			tag.write(f)
 		except:
 			print("[Warning] Can't add tags, skipped.")
 
