@@ -1,10 +1,8 @@
-	Bandcamp MP3 Downloader
+# Bandcamp-downloader
 
-License
-=======
-Bandcamp MP3 Downloader
+## License
 
-Copyright (c) 2012-2016 cisoun
+Copyright (c) 2012-2020 cisoun
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,20 +18,28 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-Dependencies
-============
- - Python 3.x, http://www.python.org/
- - stagger, http://code.google.com/p/stagger/
+## Dependencies
+
+ - Python >= 3, http://www.python.org/
 
 
-Usage
-=====
-bandcamp.py http://&lt;artist&gt;.bandcamp.com/album/&lt;album&gt;
+## Usage
+```bash
+usage: bandcamp.py [-h] [-c] url
 
+Download an album from a Bandcamp page URL.
 
-Piracy
-======
-Remember : piracy is bad. Use this script to download an album and buy it later.
-Support your favorite artists !
+positional arguments:
+  url             URL of the page (https://<artist>.bandcamp.com/album/<album>)
 
-Thanks !
+optional arguments:
+  -h, --help      show this help message and exit
+  -c, --no-cover  ignore album cover
+
+```
+
+## Piracy
+
+Bandcamp is full of artists that deserve you support!
+Please, use this script sparingly and buy their albums!
+Thank you.
