@@ -17,12 +17,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+## Summary
+
+This script downloads the MP3 files from a given URL of a Bandcamp page
+and puts them into a new folder next to itself.
+
 ## Dependencies
 
  - Python >= 3, http://www.python.org/
 
-
 ## Usage
+
 ```bash
 usage: bandcamp.py [-h] [-c] url
 
@@ -34,7 +39,6 @@ positional arguments:
 optional arguments:
   -h, --help      show this help message and exit
   -c, --no-cover  ignore album cover
-
 ```
 
 ## Piracy
