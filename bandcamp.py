@@ -24,21 +24,21 @@ def decode(content):
         content (str): HTML content.
 
     """
-    # Get the cover.
+    # Search the cover.
     matches = re.search('<a class="popupImage" href="([^\"]*)', content)
     cover = matches.group(1)
 
-    # Get album data.
+    # Search album data.
     matches = re.search('data-tralbum=\"([^\"]*)\"', content)
 
     if not matches:
         sys.exit('error: could not find any tracks.')
 
-    # Get original data.
+    # Get album data.
     data = matches.group(1)
     # Decode HTML.
     data = html.unescape(data)
-    # Dcode to JSON.
+    # Decode to JSON.
     data = json.loads(data)
 
     return Album(

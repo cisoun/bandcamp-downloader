@@ -28,7 +28,7 @@ optional arguments:
 
 ## Piracy
 
-Bandcamp is full of artists that deserve you support!  
+Bandcamp is full of artists who deserve you support!  
 Please, use this script sparingly and buy their albums!  
 Thank you.
 
