@@ -70,8 +70,8 @@ def download(album, cover=True):
     for track in album.tracks:
         if not track.released:
             continue
-        file = '%s. %s.mp3' % (track.number, track.title)
-        path = os.path.join(folder, file)
+        file = '%s. %s.mp3' % (track.number, track.title.replace('/', '-'))
+        path = os.path.join(destination, file)
         download_file(track.url, path, file)
 
     # Download album cover.
