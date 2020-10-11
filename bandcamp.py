@@ -1,3 +1,7 @@
+"""Bandcamp-downloader."""
+
+__version__ = '1.1'
+
 import argparse
 import html
 import json
@@ -14,13 +18,18 @@ Track = namedtuple('Track', 'number title url duration released')
 
 
 def decode(content):
-    """Decode the content of a Bandcamp page."""
+    """Decode the content of a Bandcamp page.
+
+    Args:
+        content (str): HTML content.
+
+    """
     # Get the cover.
     matches = re.search('<a class="popupImage" href="([^\"]*)', content)
     cover = matches.group(1)
 
     # Get album data.
-    matches = re.search('data\-tralbum=\"([^\"]*)\"', content)
+    matches = re.search('data-tralbum=\"([^\"]*)\"', content)
 
     if not matches:
         sys.exit('error: could not find any tracks.')
@@ -33,16 +42,16 @@ def decode(content):
     data = json.loads(data)
 
     return Album(
-        artist = data['artist'],
-        title = data['current']['title'],
-        cover = cover,
-        release_date = data['current']['release_date'],
-        tracks = [Track(
-            number = track['track_num'],
-            title = track['title'],
-            url = (track['file'] or {}).get('mp3-128', None),
-            duration = track['duration'],
-            released = not track['unreleased_track']
+        artist=data['artist'],
+        title=data['current']['title'],
+        cover=cover,
+        release_date=data['current']['release_date'],
+        tracks=[Track(
+            number=track['track_num'],
+            title=track['title'],
+            url=(track['file'] or {}).get('mp3-128', None),
+            duration=track['duration'],
+            released=not track['unreleased_track']
             ) for track in data['trackinfo']]
     )
 
@@ -63,8 +72,8 @@ def download(album, destination, cover=True):
 
     # Notify for unreleased tracks.
     if (any((not track.released for track in album.tracks))):
-        print('\nWARNING: some tracks are not released yet! ' +\
-            'I will ignore them.\n')
+        print('\nWARNING: some tracks are not released yet! '
+              'I will ignore them.\n')
 
     # Download tracks.
     for track in album.tracks:
@@ -130,11 +139,12 @@ def parse():
 
 
 def main():
+    """Run the main routine."""
     args = parse()
 
     try:
         response = requests.get(args.url)
-    except:
+    except Exception:
         sys.exit('error: could not parse this page.')
 
     album = decode(response.text)
