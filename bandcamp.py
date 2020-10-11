@@ -47,19 +47,19 @@ def decode(content):
     )
 
 
-def download(album, cover=True):
+def download(album, destination, cover=True):
     """Download a given album.
 
     Args:
-        album (Album): Album data.
-        cover (bool):  Allow cover downloading (default: True).
+        album (Album):     Album data.
+        destination (str): Destination of the files.
+        cover (bool):      Allow cover downloading (default: True).
 
     """
     # Create folder.
-    folder = '%s - %s' % (album.artist, album.title)
-    os.makedirs(folder, exist_ok=True)
+    os.makedirs(destination, exist_ok=True)
 
-    print('Downloading album into "%s"...' % folder)
+    print('Downloading album into %s' % destination)
 
     # Notify for unreleased tracks.
     if (any((not track.released for track in album.tracks))):
@@ -76,7 +76,7 @@ def download(album, cover=True):
 
     # Download album cover.
     if cover:
-        path = os.path.join(folder, 'cover.jpg')
+        path = os.path.join(destination, 'cover.jpg')
         download_file(album.cover, path, 'Album cover')
 
 
@@ -112,14 +112,20 @@ def download_file(url, target, name):
 
 
 def parse():
+    """Parse arguments."""
     parser = argparse.ArgumentParser(
         description='Download an album from a Bandcamp page URL.')
     parser.add_argument('url', type=str, help='URL of the page')
     parser.add_argument(
+        '-d', '--destination',
+        default=os.getcwd(),
+        dest='destination',
+        help='destination of the files (current folder by default)')
+    parser.add_argument(
         '-c', '--no-cover',
-        help='ignore album cover',
         action='store_false',
-        dest='cover')
+        dest='cover',
+        help='ignore album cover')
     return parser.parse_args()
 
 
@@ -132,7 +138,7 @@ def main():
         sys.exit('error: could not parse this page.')
 
     album = decode(response.text)
-    download(album, cover=args.cover)
+    download(album, destination=args.destination, cover=args.cover)
 
 
 main()
