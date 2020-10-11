@@ -1,5 +1,37 @@
 # Bandcamp-downloader
 
+## Summary
+
+This script finds the MP3s files of a Bandcamp page and download them into a
+given directory (current directory by default).
+
+## Dependencies
+
+ - Python >= 3, http://www.python.org/
+
+## Usage
+
+```
+usage: bandcamp.py [-h] [-d DESTINATION] [-c] url
+
+Download an album from a Bandcamp page URL.
+
+positional arguments:
+  url                   URL of the page
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DESTINATION, --destination DESTINATION
+                        destination of the files (current folder by default)
+  -c, --no-cover        ignore album cover
+```
+
+## Piracy
+
+Bandcamp is full of artists that deserve you support!  
+Please, use this script sparingly and buy their albums!  
+Thank you.
+
 ## License
 
 Copyright (c) 2012-2020 cisoun
@@ -16,33 +48,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>
-
-## Summary
-
-This script downloads the MP3 files from a given URL of a Bandcamp page
-and puts them into a new folder next to itself.
-
-## Dependencies
-
- - Python >= 3, http://www.python.org/
-
-## Usage
-
-```bash
-usage: bandcamp.py [-h] [-c] url
-
-Download an album from a Bandcamp page URL.
-
-positional arguments:
-  url             URL of the page (https://<artist>.bandcamp.com/album/<album>)
-
-optional arguments:
-  -h, --help      show this help message and exit
-  -c, --no-cover  ignore album cover
-```
-
-## Piracy
-
-Bandcamp is full of artists that deserve you support!
-Please, use this script sparingly and buy their albums!
-Thank you.
