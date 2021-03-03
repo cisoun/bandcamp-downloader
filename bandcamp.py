@@ -79,7 +79,8 @@ def download(album, destination, cover=True):
     for track in album.tracks:
         if not track.released:
             continue
-        file = '%s. %s.mp3' % (track.number, track.title.replace('/', '-'))
+        title = re.sub(r'[\:\/\\]', '', track.title)  # Strip unwanted chars.
+        file = '%s. %s.mp3' % (track.number, title)
         path = os.path.join(destination, file)
         download_file(track.url, path, file)
 
