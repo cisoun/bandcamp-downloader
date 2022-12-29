@@ -11,30 +11,25 @@ given directory (current directory by default).
 
 ## Usage
 
+```sh
+# Download an album in current folder:
+python3 ./bandcamp.py artist.bandcamp.com/album/whatever
+
+# In another folder:
+python3 ./bandcamp.py artist.bandcamp.com/album/whatever -d ~/Music/Artist/Whatever
 ```
-usage: bandcamp.py [-h] [-d DESTINATION] [-c] url
 
-Download an album from a Bandcamp page URL.
-
-positional arguments:
-  url                   URL of the page
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -d DESTINATION, --destination DESTINATION
-                        destination of the files (current folder by default)
-  -c, --no-cover        ignore album cover
-```
+For further help, use the `-h` argument.
 
 ## Piracy
 
-Bandcamp is full of artists who deserve you support!  
+Bandcamp is full of artists who deserve you support.  
 Please, use this script sparingly and buy their albums!  
 Thank you.
 
 ## License
 
-Copyright (c) 2012-2020 cisoun
+Copyright (c) 2012-2023 cisoun
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

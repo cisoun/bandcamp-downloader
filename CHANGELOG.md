@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2] - 29 December 2022
+
+### Changed
+
+- Improved URL validation.
+- Now allows URLs without protocol.
+- Code refactoring.
+
 ## [1.1.1] - 03 March 2021
 
 ### Changed
@@ -27,7 +35,8 @@ Supports the latest changes on the Bandcamp pages HTML structure.
 
  - `-c | --no-cover` option to ignore the download of the album cover.
 
-[unreleased]: https://github.com/github.com/cisoun/bandcamp-downloader/compare/v1.1.1...HEAD
+[unreleased]: https://github.com/github.com/cisoun/bandcamp-downloader/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/cisoun/bandcamp-downloader/releases/tag/v1.1.2
 [1.1.1]: https://github.com/cisoun/bandcamp-downloader/releases/tag/v1.1.1
 [1.1]: https://github.com/cisoun/bandcamp-downloader/releases/tag/v1.1
 [1.0]: https://github.com/cisoun/bandcamp-downloader/releases/tag/v1.0
