@@ -13,8 +13,10 @@ import sys
 from collections import namedtuple
 
 
+URL_PATTERN = r'^(?:https?://)?((?:[^./]+)\.bandcamp.com(?:/album(?:/[^\s/]+)?)?)/?$'
+
 Album = namedtuple('Album', 'artist title cover release_date tracks')
-Track = namedtuple('Track', 'number title url duration released')
+Track = namedtuple('Track', 'number title url duration unreleased')
 
 
 def decode(content):
@@ -26,7 +28,7 @@ def decode(content):
     """
     # Search the cover.
     matches = re.search('<a class="popupImage" href="([^\"]*)', content)
-    cover = matches.group(1)
+    cover   = matches.group(1)
 
     # Search album data.
     matches = re.search('data-tralbum=\"([^\"]*)\"', content)
@@ -41,23 +43,29 @@ def decode(content):
     # Decode to JSON.
     data = json.loads(data)
 
-    return Album(
-        artist=data['artist'],
-        title=data['current']['title'],
-        cover=cover,
-        release_date=data['current']['release_date'],
-        tracks=[Track(
-            number=track['track_num'],
-            title=track['title'],
-            url=(track['file'] or {}).get('mp3-128', None),
-            duration=track['duration'],
-            released=not track['unreleased_track']
-            ) for track in data['trackinfo']]
+    tracks = (
+        Track(
+            number     = track['track_num'],
+            title      = track['title'],
+            url        = track.get('file', {}).get('mp3-128'),
+            duration   = track['duration'],
+            unreleased = track['unreleased_track']
+        ) for track in data['trackinfo']
     )
+
+    album = Album(
+        artist       = data['artist'],
+        title        = data['current']['title'],
+        cover        = cover,
+        release_date = data['current']['release_date'],
+        tracks       = tuple(tracks)
+    )
+
+    return album
 
 
 def download(album, destination, cover=True):
-    """Download a given album.
+    """Download an album.
 
     Args:
         album (Album):     Album data.
@@ -71,17 +79,17 @@ def download(album, destination, cover=True):
     print('Downloading album into %s' % destination)
 
     # Notify for unreleased tracks.
-    if (any((not track.released for track in album.tracks))):
+    if (any((track.unreleased for track in album.tracks))):
         print('\nWARNING: some tracks are not released yet! '
               'I will ignore them.\n')
 
     # Download tracks.
     for track in album.tracks:
-        if not track.released:
+        if track.unreleased:
             continue
         title = re.sub(r'[\:\/\\]', '', track.title)  # Strip unwanted chars.
-        file = '%s. %s.mp3' % (track.number, title)
-        path = os.path.join(destination, file)
+        file  = '%s. %s.mp3' % (track.number, title)
+        path  = os.path.join(destination, file)
         download_file(track.url, path, file)
 
     # Download album cover.
@@ -103,7 +111,7 @@ def download_file(url, target, name):
     """
     with open(target, 'wb') as f:
         response = requests.get(url, stream=True)
-        size = response.headers.get('content-length')
+        size     = response.headers.get('content-length')
 
         if size is None:
             print('%s (unavailable)' % name)
@@ -119,6 +127,11 @@ def download_file(url, target, name):
                 '\r[%s%s] %s' % ('#' * progress, ' ' * (20 - progress), name))
             sys.stdout.flush()
         sys.stdout.write('\n')
+
+
+def validate_url(url):
+    matches = re.search(URL_PATTERN, url)
+    return 'https://' + matches.group(0)
 
 
 def parse():
@@ -144,12 +157,11 @@ def main():
     args = parse()
 
     try:
-        response = requests.get(args.url)
-    except Exception:
+        url   = validate_url(args.url)
+        page  = requests.get(url)
+        album = decode(page.text)
+        download(album, destination=args.destination, cover=args.cover)
+    except Exception as e:
         sys.exit('error: could not parse this page.')
-
-    album = decode(response.text)
-    download(album, destination=args.destination, cover=args.cover)
-
 
 main()
